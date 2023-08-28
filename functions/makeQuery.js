@@ -1,3 +1,4 @@
+const logger = require('pino')()
 const fs = require('fs');
 const JSONStream = require('JSONStream');
 
@@ -28,7 +29,7 @@ function makeQuery(filename) {
     const readStream = fs.createReadStream(filename, { encoding: 'utf8' });
     const parseStream = JSONStream.parse('*');
 
-    console.log('Reading and parsing JSON file...');
+    logger.info('Reading and parsing JSON file...');
 
     parseStream.on('data', (item) => {
       item.index = input.length;
@@ -41,13 +42,12 @@ function makeQuery(filename) {
     });
 
     parseStream.on('end', () => {
-      console.log('JSON file successfully parsed.');
-      console.log('Creating query function...');
+      logger.info('JSON file successfully parsed.');
+      logger.info('Creating query function...');
       // Sort by starting point, but keep original order for overlapping intervals
       input.sort((a, b) => a.key[0] - b.key[0] || a.index - b.index);
 
       resolve((key) => {
-        console.log('Querying key:', key);
         let low = 0;
         let high = input.length - 1;
 
@@ -69,7 +69,7 @@ function makeQuery(filename) {
         return undefined;
       });
 
-      console.log('Query function created successfully.');
+      logger.info('!!!Query function created successfully.');
     });
 
     readStream.pipe(parseStream);
