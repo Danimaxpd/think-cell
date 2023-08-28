@@ -31,6 +31,7 @@ function makeQuery(filename) {
     console.log('Reading and parsing JSON file...');
 
     parseStream.on('data', (item) => {
+      item.index = input.length;
       input.push(item);
     });
 
@@ -43,9 +44,10 @@ function makeQuery(filename) {
       console.log('JSON file successfully parsed.');
       console.log('Creating query function...');
       // Sort by starting point, but keep original order for overlapping intervals
-      input.sort((a, b) => a.key[0] - b.key[0] || a.key[1] - b.key[1]);
+      input.sort((a, b) => a.key[0] - b.key[0] || a.index - b.index);
 
       resolve((key) => {
+        console.log('Querying key:', key);
         let low = 0;
         let high = input.length - 1;
 
@@ -73,10 +75,6 @@ function makeQuery(filename) {
     readStream.pipe(parseStream);
   });
 }
-
-module.exports = {
-  makeQuery
-};
 
 
 module.exports = {
